@@ -8,6 +8,9 @@ from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate, login
 
 from rest_framework_jwt.settings import api_settings
+from ..helpers.validators import validate_password
+
+from ..helpers.cloudinary import upload_images
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -28,9 +31,14 @@ class UserView(ListCreateAPIView):
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
 
+        if serializer.is_valid():
+            validate_password(request.data['password'])
+            try:
+                upload = upload_images(request.data['image'])
+                serializer.save(image=upload['url'])
+            except Exception:
+                serializer.save()
             data = {
                 'message': 'User Signed Up successfully',
                 'data': serializer.data

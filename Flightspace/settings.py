@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-import dj_database_url
+# import dj_database_url
+from decouple import config
 import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'api',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -77,8 +79,18 @@ WSGI_APPLICATION = 'Flightspace.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
+# DATABASES = {
+#     'default': dj_database_url.config()
+# }
+
 DATABASES = {
-    'default': dj_database_url.config()
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.getenv('DATABASE_NAME', 'sacco'),
+        'HOST': 'localhost',
+        'PORT': 5432,
+        'USER': 'postgres'
+    }
 }
 
 
@@ -128,6 +140,16 @@ REST_FRAMEWORK = {
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     )
 }
+
+TEST_REQUIREMENTS = [
+    'pytest',
+    'pytest-django',
+    'pylint',
+    'pylint_django',
+    'git-pylint-commit-hook',
+]
+
+
 
 JWT_AUTH = {
     'JWT_ENCODE_HANDLER': 'rest_framework_jwt.utils.jwt_encode_handler',
